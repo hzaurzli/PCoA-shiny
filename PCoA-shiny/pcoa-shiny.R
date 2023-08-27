@@ -82,102 +82,104 @@ server <- function(input, output, session) {
     library(vegan) 
     
     df = filedata()
-    df=t(df)
     dfGroup = metadata()
     
-    if (input$Type == 'y') {
-      df.dist = vegdist(df,method='euclidean')    #基于euclidean距离
-      pcoa =  dudi.pco(df.dist,
-                       scannf = F,   # 一种逻辑值，指示是否应该显示特征值条形图
-                       nf=2)         # 保留几个维度的坐标信息
-      
-      # 整理绘图所需的数据
-      data = pcoa$li
-      data$name = rownames(data)
-      data$group = dfGroup$Group
-      
-      # 绘图, p1 为全局变量
-      p1 <<- ggplot(data,aes(x = A1,
-                      y = A2,
-                      color = group,
-                      group = group,
-                      fill = group
-      ))+
-        geom_point(size = input$size2)+
-        theme_classic()+
-        geom_vline(xintercept = 0, color = 'gray', size = 0.4) +   # 在0处添加垂直线条
-        geom_hline(yintercept = 0, color = 'gray', size = 0.4) +
-        stat_ellipse(aes(x=A1,    # 添加置信区间圈
-                         y=A2,
-        ),
-        geom = "polygon",
-        level = 0.95,
-        alpha=0.4)+
-        geom_text(                # 添加文本标签
-          aes(label=name),   
-          vjust=1.5,            
-          size=input$size1,
-          color = "black"
-        )+
-        labs(  # 更改x与y轴坐标为pcoa$eig/sum(pcoa$eig)
-          x = paste0("PCoA1 (",as.character(round(pcoa$eig[1] / sum(pcoa$eig) * 100,2)),"%)"),
-          y = paste0("PCoA2 (",as.character(round(pcoa$eig[2] / sum(pcoa$eig) * 100,2)),"%)")
-        ) + 
-        theme(legend.title=element_text(size=input$num1),
-              axis.text=element_text(size=input$num2),
-              axis.title.x = element_text(size=input$num3),
-              axis.title.y = element_text(size=input$num3),
-              legend.text = element_text(size=input$num2))
-      
-      print(p1)
-      
-    } else if (input$Type == 'n') {
-      df.dist = vegdist(df,method='euclidean')    #基于euclidean距离
-      pcoa =  dudi.pco(df.dist,
-                       scannf = F,   # 一种逻辑值，指示是否应该显示特征值条形图
-                       nf=2)         # 保留几个维度的坐标信息
-      
-      # 整理绘图所需的数据
-      data = pcoa$li
-      data$name = rownames(data)
-      data$group = dfGroup$Group
-      
-      # 绘图, p2 为全局变量
-      p2 <<- ggplot(data,aes(x = A1,
-                      y = A2,
-                      color = group,
-                      group = group,
-                      fill = group
-      ))+
-        geom_point(size = input$size2)+
-        theme_classic()+
-        geom_vline(xintercept = 0, color = 'gray', size = 0.4) +   # 在0处添加垂直线条
-        geom_hline(yintercept = 0, color = 'gray', size = 0.4) +
-        stat_ellipse(aes(x=A1,    # 添加置信区间圈
-                         y=A2,
-        ),
-        geom = "polygon",
-        level = 0.95,
-        alpha=0.4)+
-        geom_text(                # 添加文本标签
-          aes(label=name),   
-          vjust=1.5,            
-          size=input$size1,
-          color = "black"
-        )+
-        labs(  # 更改x与y轴坐标为pcoa$eig/sum(pcoa$eig)
-          x = paste0("PCoA1 (",as.character(round(pcoa$eig[1] / sum(pcoa$eig) * 100,2)),"%)"),
-          y = paste0("PCoA2 (",as.character(round(pcoa$eig[2] / sum(pcoa$eig) * 100,2)),"%)")
-        ) + 
-        theme(legend.title=element_text(size=input$num1),
-              axis.text=element_text(size=input$num2),
-              axis.title.x = element_text(size=input$num3),
-              axis.title.y = element_text(size=input$num3),
-              legend.text = element_text(size=input$num2))
-      
-      print(p2)
-    }
+    print(is.null(df) | is.null(dfGroup))
     
+    if(is.null(df) | is.null(dfGroup)){
+      warning("Please upload files!")
+    } 
+    else{
+      if (input$Type == 'y') {
+        df=t(df)
+        df.dist = vegdist(df,method='euclidean')    #基于euclidean距离
+        pcoa =  dudi.pco(df.dist,
+                         scannf = F,   # 一种逻辑值，指示是否应该显示特征值条形图
+                         nf=2)         # 保留几个维度的坐标信息
+        
+        # 整理绘图所需的数据
+        data = pcoa$li
+        data$name = rownames(data)
+        data$group = dfGroup$Group
+        
+        # 绘图, p1 为全局变量
+        p1 <<- ggplot(data,aes(x = A1,
+                               y = A2,
+                               color = group,
+                               group = group,
+                               fill = group
+        ))+
+          geom_point(size = input$size2)+
+          theme_classic()+
+          geom_vline(xintercept = 0, color = 'gray', size = 0.4) +   # 在0处添加垂直线条
+          geom_hline(yintercept = 0, color = 'gray', size = 0.4) +
+          stat_ellipse(aes(x=A1,    # 添加置信区间圈
+                           y=A2,
+          ),
+          geom = "polygon",
+          level = 0.95,
+          alpha=0.4)+
+          geom_text(                # 添加文本标签
+            aes(label=name),   
+            vjust=1.5,            
+            size=input$size1,
+            color = "black"
+          )+
+          labs(  # 更改x与y轴坐标为pcoa$eig/sum(pcoa$eig)
+            x = paste0("PCoA1 (",as.character(round(pcoa$eig[1] / sum(pcoa$eig) * 100,2)),"%)"),
+            y = paste0("PCoA2 (",as.character(round(pcoa$eig[2] / sum(pcoa$eig) * 100,2)),"%)")
+          ) + 
+          theme(legend.title=element_text(size=input$num1),
+                axis.text=element_text(size=input$num2),
+                axis.title.x = element_text(size=input$num3),
+                axis.title.y = element_text(size=input$num3),
+                legend.text = element_text(size=input$num2))
+        
+        print(p1)
+        
+      } else if (input$Type == 'n') {
+        df=t(df)
+        df.dist = vegdist(df,method='euclidean')    #基于euclidean距离
+        pcoa =  dudi.pco(df.dist,
+                         scannf = F,   # 一种逻辑值，指示是否应该显示特征值条形图
+                         nf=2)         # 保留几个维度的坐标信息
+        
+        # 整理绘图所需的数据
+        data = pcoa$li
+        data$name = rownames(data)
+        data$group = dfGroup$Group
+        
+        # 绘图, p2 为全局变量
+        p2 <<- ggplot(data,aes(x = A1,
+                               y = A2,
+                               color = group,
+                               group = group,
+                               fill = group
+        ))+
+          geom_point(size = input$size2)+
+          theme_classic()+
+          geom_vline(xintercept = 0, color = 'gray', size = 0.4) +   # 在0处添加垂直线条
+          geom_hline(yintercept = 0, color = 'gray', size = 0.4) +
+          geom_text(                # 添加文本标签
+            aes(label=name),   
+            vjust=1.5,            
+            size=input$size1,
+            color = "black"
+          )+
+          labs(  # 更改x与y轴坐标为pcoa$eig/sum(pcoa$eig)
+            x = paste0("PCoA1 (",as.character(round(pcoa$eig[1] / sum(pcoa$eig) * 100,2)),"%)"),
+            y = paste0("PCoA2 (",as.character(round(pcoa$eig[2] / sum(pcoa$eig) * 100,2)),"%)")
+          ) + 
+          theme(legend.title=element_text(size=input$num1),
+                axis.text=element_text(size=input$num2),
+                axis.title.x = element_text(size=input$num3),
+                axis.title.y = element_text(size=input$num3),
+                legend.text = element_text(size=input$num2))
+        
+        print(p2)
+      }
+    }
+  
     ## 下载图片写法
     output$plotDown <- downloadHandler(
       filename = function(){
